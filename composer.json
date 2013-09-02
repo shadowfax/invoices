@@ -1,0 +1,18 @@
+{
+    "name": "shadowfax/invoices",
+    "description": "Invoicing Application powered by ZF2",
+    "license": "BSD-3-Clause",
+    "keywords": [
+        "invoice",
+        "zf2"
+    ],
+    "homepage": "http://framework.zend.com/",
+    "require": {
+        "php": ">=5.3.3",
+        "zendframework/zendframework": ">2.2.0rc1",
+        "doctrine/doctrine-orm-module": "0.*",
+        "bjyoungblood/bjy-authorize": "~1.1",
+        "zf-commons/zfc-user": "~0.1",
+        "zf-commons/zfc-user-doctrine-orm": "~0.1"
+    }
+}
