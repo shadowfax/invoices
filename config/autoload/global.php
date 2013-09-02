@@ -12,5 +12,23 @@
  */
 
 return array(
-    // ...
+
+	// Doctrine
+	'doctrine' => array(
+		'connection' => array(
+			'orm_default' =>array(
+				'driverClass' => 'Doctrine\DBAL\Driver\PDOMySql\Driver',
+				'params' => array(
+					'host'     => 'localhost',
+					'port'     => '3306',
+					// Credentials should be stored in local.php 
+					// to avoid commiting it.
+					//'user'     => '<YOUR USERNAME>',
+					//'password' => '<YOUR PASSWORD>',
+					'dbname'   => 'invoices',
+				)
+			)
+		)
+	),
+ 
 );
