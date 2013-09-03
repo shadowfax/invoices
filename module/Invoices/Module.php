@@ -9,6 +9,12 @@
 
 namespace Invoices;
 
+// The namespace has not been loaded into the autoloader
+// therefore we require the AbstractModule file
+require_once __DIR__ . '/src/Invoices/Module/AbstractModule.php';
+
+use Invoices\Module\AbstractModule;
+
 use Invoices\Service\OptionsService;
 
 use Zend\ModuleManager\ModuleManager;
@@ -16,59 +22,16 @@ use Zend\ModuleManager\ModuleManager;
 use Zend\Mvc\ModuleRouteListener;
 use Zend\Mvc\MvcEvent;
 
-class Module
+class Module extends AbstractModule
 {
     public function onBootstrap(MvcEvent $e)
     {
         $eventManager        = $e->getApplication()->getEventManager();
         $moduleRouteListener = new ModuleRouteListener();
         $moduleRouteListener->attach($eventManager);
-        
-        // No layout for errors
-        $eventManager->attach(MvcEvent::EVENT_DISPATCH_ERROR, function($e) {
-             $result = $e->getResult();
-             $result->setTerminal(TRUE);
-		});
-		
-        // Force authentication
-		$serviceManager = $e->getApplication()->getServiceManager();
-		$auth           = $serviceManager->get('zfcuser_auth_service');
-		
-		$eventManager->attach(MvcEvent::EVENT_ROUTE, function($e) use ($auth) {
-            $match = $e->getRouteMatch();
-
-            // No route match, this is a 404
-            if (!$match instanceof RouteMatch) {
-                return;
-            }
-            // White list (Accesible routes without auth)
-			$list = array('zfcuser/login');
-			
-            // Route is whitelisted
-            $name = $match->getMatchedRouteName();
-            if (in_array($name, $list)) {
-                return;
-            }
-
-            // User is authenticated
-            if ($auth->hasIdentity()) {
-                return;
-            }
-
-            // Redirect to the user login page, as an example
-            $router   = $e->getRouter();
-            $url      = $router->assemble(array(), array(
-                'name' => 'zfcuser/login'
-            ));
-
-            $response = $e->getResponse();
-            $response->getHeaders()->addHeaderLine('Location', $url);
-            $response->setStatusCode(302);
-
-            return $response;
-        }, -100);
-        
+                
         // Add ACL information to the Navigation view helper
+        $serviceManager = $e->getApplication()->getServiceManager();
         $authorize = $serviceManager->get('BjyAuthorize\Service\Authorize');
         $acl       = $authorize->getAcl();
         $role      = $authorize->getIdentity();
@@ -76,38 +39,23 @@ class Module
         \Zend\View\Helper\Navigation::setDefaultRole($role);
     }
     
+    public function getDir()
+    {
+    	return __DIR__;
+    }
+    
+    public function getNamespace()
+    {
+    	return __NAMESPACE__;
+    }
+    
+    /*
     public function init(ModuleManager $moduleManager) 
     { 
-        $sharedEvents = $moduleManager->getEventManager()->getSharedManager(); 
-        $sharedEvents->attach(__NAMESPACE__, 'dispatch', function($e) { 
-            $serviceManager = $e->getApplication()->getServiceManager(); 
-            $options = $serviceManager->get('Invoices.Options');
-            $theme   = $options->get('theme', 'default');
-            $theme_path = __DIR__ . '/theme/' . $theme;
-            
-            $templatePathResolver = $serviceManager->get('Zend\View\Resolver\TemplatePathStack'); 
-            $templatePathResolver->setPaths(array($theme_path)); // here is your skin name 
-
-            $viewModel = $e->getViewModel(); 
-        	$viewModel->setTemplate('layout'); 
-        }, 100); 
+    	// If using 'init' ALWAYS call parent
+        parent::init($moduleManager); 
     } 
-
-    public function getConfig()
-    {
-        return include __DIR__ . '/config/module.config.php';
-    }
-
-    public function getAutoloaderConfig()
-    {
-        return array(
-            'Zend\Loader\StandardAutoloader' => array(
-                'namespaces' => array(
-                    __NAMESPACE__ => __DIR__ . '/src/' . __NAMESPACE__,
-                ),
-            ),
-        );
-    }
+    */
     
 	public function getServiceConfig()
 	{
